@@ -6,7 +6,7 @@ The code is only for the research purpose within CREST-Deep.
 You can download the code and do your own experiments freely.
 
 The required data for developing the system is located in Tsubame.
-For the detailed information of accessing the data, please refer to `Part II: Data`.
+For the detailed information of accessing the data, please refer to `Part I: Data`.
 
 If you have any questions or requirements, please do not hesitate to contact us under `mengxi at ks.cs.titech.ac.jp`, `ryamamot at ks.cs.titech.ac.jp`.
 
@@ -120,6 +120,7 @@ For the detailed explanations of the annotations in `csv` and `txt`, please refe
 ```
 	/work1/t2g-crest-deep/ShinodaLab/video
 ```
+
 	They are compressed with H.264 and stored in .mp4 format.
 -	Frame Data (Input for Deep Feature Extraction)
 
