@@ -1,10 +1,13 @@
 #!/bin/bash
 
-cd ${PBS_O_WORKDIR}
+if [[ ! -z ${PBS_O_WORKDIR} ]]
+then
+	cd ${PBS_O_WORKDIR}
+fi
 
 EXPID='TokyoTech_MED16_KINDRED_PS_100Ex_SML_DCNN-pool5-STRICTREF_1'
 TempOutDir='/scr/TempOutDir/'
-LIBSVM=`pwd`"/libsvm-3.22/"
+LIBSVM='/work1/t2g-crest-deep/ShinodaLab/library/libsvm-3.22/'
 IS_LINEAR=0
 SVSUFFIX=''
 ANNOT_DIR="/work1/t2g-crest-deep/ShinodaLab/annotations/csv/"
@@ -30,19 +33,21 @@ TRAIN_SVDIR=( \
 	"/work1/t2g-crest-deep/ShinodaLab/feature/LDC2011E41_TEST/avgFeature/" \
 )
 
+threads=24
+
 function log()
 {
 	echo `date '+[%Y%m%d-%H%M%S]'` $@
 }
 
 
-if [ ! -d $TempOutDir ]
+if [[ ! -d $TempOutDir ]]
 then
 	mkdir $TempOutDir
 fi
 
 
-if [ -r ${EXPID} ]
+if [[ -r ${EXPID} ]]
 then
 	rm -r $EXPID
 	mkdir ${EXPID} 
@@ -59,7 +64,7 @@ log 'Start experiment '${EXPID} >> log
 
 cat ${TEST_CLIPMD} | cut -d ',' -f 1 | sed -e '1d' -e 's/\"//g' -e 's\HVC\\g' > $TempOutDir/test_clipid.tmp
 log 'Generating feature vectors of '`wc -l < $TempOutDir/test_clipid.tmp`' test clips...' >> log
-split -l $(((`wc -l < $TempOutDir/test_clipid.tmp` + 19) / 20)) $TempOutDir/test_clipid.tmp $TempOutDir/test_clipid.tmp.
+split -l $(((`wc -l < $TempOutDir/test_clipid.tmp` + $threads - 1) / $threads)) $TempOutDir/test_clipid.tmp $TempOutDir/test_clipid.tmp.
 pids=()
 
 for file in $TempOutDir/test_clipid.tmp.*
@@ -72,7 +77,7 @@ do
 			for DIR in ${TEST_SVDIR[@]} #for DIR in $TEST_SVDIR 
 			do
 				SV=${DIR}'/HVC'${i}${SVSUFFIX}
-				if [ -r $SV ]
+				if [[ -r $SV ]]
 				then
 					# Add feature indices to each column
 					cat $SV | tr ' ' '\n' | nl -n ln -w 1 -s : | tr '\n' ' '
@@ -80,7 +85,7 @@ do
 					break
 				fi
 			done
-			if [ $E -eq 1 ]
+			if [[ $E -eq 1 ]]
 			then
 				echo 'HVC'${i}${SVSUFFIX}' doesn'"'"'t exist anywhere.' >> log
 				exit 1
@@ -94,7 +99,7 @@ done
 for pid in ${pids[@]}
 do
 	wait $pid
-	if [ $? -ne 0 ]
+	if [[ $? -ne 0 ]]
 	then
 		exit 1
 	fi
@@ -106,7 +111,7 @@ log 'Generated' >> log
 
 cat ${BG_CLIPMD} | cut -d ',' -f 1 | sed -e '1d' -e 's/\"//g' -e 's\HVC\\g' > $TempOutDir/bg_clipid.tmp
 log 'Generating feature vectors of '`wc -l < $TempOutDir/bg_clipid.tmp`' background clips...' >> log
-split -l $(((`wc -l < $TempOutDir/bg_clipid.tmp` + 19) / 20)) $TempOutDir/bg_clipid.tmp $TempOutDir/bg_clipid.tmp.
+split -l $(((`wc -l < $TempOutDir/bg_clipid.tmp` + $threads - 1) / $threads)) $TempOutDir/bg_clipid.tmp $TempOutDir/bg_clipid.tmp.
 pids=()
 
 for file in $TempOutDir/bg_clipid.tmp.*
@@ -119,7 +124,7 @@ do
 			for DIR in ${TRAIN_SVDIR[@]} #for DIR in $TRAIN_SVDIR 
 			do
 				SV=${DIR}'/HVC'${i}${SVSUFFIX}
-				if [ -r $SV ]
+				if [[ -r $SV ]]
 				then
 					# Add feature indices to each column
 					cat $SV | tr ' ' '\n' | nl -n ln -w 1 -s : | tr '\n' ' '
@@ -127,7 +132,7 @@ do
 					break
 				fi
 			done
-			if [ $E -eq 1 ]
+			if [[ $E -eq 1 ]]
 			then
 				log 'HVC'${i}${SVSUFFIX}' doesn'"'"'t exist anywhere.' >> log
 				exit 1
@@ -141,7 +146,7 @@ done
 for pid in ${pids[@]}
 do
 	wait $pid
-	if [ $? -ne 0 ]
+	if [[ $? -ne 0 ]]
 	then
 		exit 1
 	fi
@@ -151,7 +156,7 @@ cat $TempOutDir/bg.sv.* > $TempOutDir/bg.sv
 log 'Generated' >> log
 
 
-if [ ${IS_LINEAR} -eq 0 ]
+if [[ ${IS_LINEAR} -eq 0 ]]
 then
 	SVMKERNEL=2
 else
@@ -163,7 +168,7 @@ do
 	(
 		log ${EVENT}' start training and testing SVM, detailed log in log_'${EVENT} >> log
 		log 'Start training and testing SVM for event '${EVENT} >> log_${EVENT}
-		if [ $EVENT == 'NULL' ]
+		if [[ $EVENT == 'NULL' ]]
 		then
 			continue
 		fi
@@ -173,7 +178,7 @@ do
 		do
 			# Label: +1 / -1
 			grep -q '\"HVC'${i}'\",\"'${EVENT}'\",\"positive\"' ${TRAIN_JUDGEMENTMD}
-			if [ $? -eq 0 ]
+			if [[ $? -eq 0 ]]
 			then
 				printf '+1 '
 			else
@@ -184,7 +189,7 @@ do
 			for DIR in ${TRAIN_SVDIR[@]} #for DIR in $TRAIN_SVDIR 
 			do
 				SV="$DIR/HVC${i}${SVSUFFIX}"
-				if [ -r $SV ]
+				if [[ -r $SV ]]
 				then
 					# Add feature indices to each column
 					cat $SV | tr ' ' '\n' | nl -n ln -w 1 -s : | tr '\n' ' '
@@ -192,7 +197,7 @@ do
 					break
 				fi
 			done
-			if [ $E -eq 1 ]
+			if [[ $E -eq 1 ]]
 			then
 				log "HVC${i}${SVSUFFIX} doesn't exist anywhere." >> log_${EVENT}
 				exit 1
@@ -221,7 +226,7 @@ log 'Calculating average precisions...' >> log
 echo '\"TrialID\",\"Score\"' > ${EXPID}.detection.csv
 cat $TempOutDir/${EXPID}.detection.*.csv.tmp | sort >> ${EXPID}.detection.csv
 
-if [ -r ${TEST_REF} ]
+if [[ -r ${TEST_REF} ]]
 then
 	../ap.sh ${EXPID}.detection.csv ${TEST_EVENTDB} ${TEST_REF}
 fi

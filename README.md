@@ -81,7 +81,7 @@ For the detailed description of each event, please refer to ***.
 
 We place all the data needed for each module's input in Tsubame under the directory: 
 ```
-	/work1/t2g-crest-deep/ShinodaLab/{video,frame,feature}
+	/work1/t2g-crest-deep/ShinodaLab/MEDData 
 ```
 
 The whole data is split into six parts: 
@@ -120,7 +120,6 @@ For the detailed explanations of the annotations in `csv` and `txt`, please refe
 ```
 	/work1/t2g-crest-deep/ShinodaLab/video
 ```
-
 	They are compressed with H.264 and stored in .mp4 format.
 -	Frame Data (Input for Deep Feature Extraction)
 
@@ -236,10 +235,9 @@ Part IV: Frame Extraction
 This module extracts frame images from videos. The input is directory containing videos and list of videos (optional). The output is directory containing png images of video frames every 2 seconds.
 
 ### Requirements
-- **zlib** - to support png output of ffmpeg  
-	http://www.zlib.net/
 - **ffmpeg** - to extract frames from videos  
-	https://ffmpeg.org/
+	https://ffmpeg.org/  
+	Binaries stored in `/work1/t2g-crest-deep/ShinodaLab/library/ffmpeg-3.2.4/bin/`
 
 ### Settings
 - `videodir` - (required) directory of videos
@@ -302,7 +300,8 @@ This module will train and test SVM with deep features. The input is the annotat
 
 ### Requirements
 - **libsvm** - to train and test SVM  
-	https://www.csie.ntu.edu.tw/~cjlin/libsvm/
+	https://www.csie.ntu.edu.tw/~cjlin/libsvm/  
+	Binaries stored in `/work1/t2g-crest-deep/ShinodaLab/library/libsvm-3.22/`
 
 ### Settings
 - `EXPID` - (required) name of the experiment
