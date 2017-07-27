@@ -81,7 +81,7 @@ For the detailed description of each event, please refer to ***.
 
 We place all the data needed for each module's input in Tsubame under the directory: 
 ```
-	/work1/t2g-crest-deep/ShinodaLab/MEDData 
+	/work1/t2g-crest-deep/ShinodaLab/
 ```
 
 The whole data is split into six parts: 
