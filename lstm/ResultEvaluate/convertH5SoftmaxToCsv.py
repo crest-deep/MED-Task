@@ -1,3 +1,6 @@
+# Original Author: Na
+# Refactor Author: Mengxi
+# Date: 2017.8.14
 import numpy as np
 import h5py
 import sys
@@ -49,42 +52,44 @@ import math
 resultH5Path = sys.argv[1]
 refCSVPath = sys.argv[2]
 resultCSVPath = sys.argv[3]
-targetClassNum = int(sys.argv[4])
+eventIdOffset = int(sys.argv[4])
+isSoftmaxIncludeBackground = bool(int(sys.argv[5]))
 
 print "Converting " + resultH5Path
 
-with h5py.File(resultH5Path, 'r') as hf:
-    res = hf.get('data')
-    np_data = np.array(res)
-#print np_data.shape
+with h5py.File(resultH5Path, 'r') as softmaxFile:
+	#softmaxMat: sampleNum x targetNum
+	softmaxMat = softmaxFile.get('data') #Mengxi says it's strange to call the softmax data 'data'
+	softmaxMat = np.array(softmaxMat)
+	
+targetClassNum = softmaxMat.shape[1]
+if isSoftmaxIncludeBackground:
+	targetClassNum = targetClassNum - 1
+print "TargetClassNum (not include 'Background'): ", targetClassNum
+print "SampleNum: ", softmaxMat.shape[0]
+
 refCSVFile = open(refCSVPath, 'r')
 with open(resultCSVPath, 'w') as resultCSVFile:
 	resultCSVFile.write("\"TrialID\",\"Targ\"\n")
 
+# Get the clipId from the 'ref.csv' file
 clipIdList = []
 refCSVOneLine = refCSVFile.readline()
-clipCount = 0
+trialCount = 0
 refCSVOneLine = refCSVFile.readline()
 while refCSVOneLine:
-	if clipCount % targetClassNum == 0:
+	if trialCount % targetClassNum == 0:
 		clipIdList.append(refCSVOneLine.split('.')[0][1:])
-	clipCount = clipCount + 1
+	trialCount = trialCount + 1
 	refCSVOneLine = refCSVFile.readline()
-
 refCSVFile.close()
 
-tmpFile = open('test.txt', 'w')
-for item in clipIdList:
-	tmpFile.write("%s\n" % item)
+assert len(clipIdList) == softmaxMat.shape[0]
 
-assert len(clipIdList) == len(np_data)
-
-for idx, clipId in enumerate(clipIdList):
+for sampleIdx, clipId in enumerate(clipIdList): 
 	with open(resultCSVPath, 'a') as resultCSVFile:
-	    for eventid in range(0,20): #range(0,21);        
-	        #print clip,ix,eventid
-		prob = np_data[idx, eventid]
-		#prob= math.exp(prob)
-		resultCSVFile.write("\"" + clipId + ".E0" + str(eventid + 21) + "\",\"" + str(prob) + "\"" + "\n")
+		for eventId in range(0, targetClassNum):        
+			prob = softmaxMat[sampleIdx, eventId]
+			resultCSVFile.write("\"" + clipId + ".E0" + str(eventId + eventIdOffset) + "\", \"" + str(prob) + "\"" + "\n")
 
 

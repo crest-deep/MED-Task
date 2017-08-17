@@ -1,16 +1,15 @@
 #!/bin/bash
-
-if [[ ! -z ${PBS_O_WORKDIR} ]]
-then
-	cd ${PBS_O_WORKDIR}
-fi
+#$ -cwd
+#$ -l f_node=1
+#$ -l h_rt=1:00:00
+#$ -N eval
 
 EXPID='TokyoTech_MED16_KINDRED_PS_100Ex_SML_DCNN-pool5-STRICTREF_1'
-TempOutDir='/scr/TempOutDir/'
-LIBSVM='/work1/t2g-crest-deep/ShinodaLab/library/libsvm-3.22/'
+TempOutDir=$TMPDIR'/TempOutDir/'
+LIBSVM='/gs/hs0/tga-crest-deep/shinodaG/library/libsvm-3.22/'
 IS_LINEAR=0
 SVSUFFIX=''
-ANNOT_DIR="/work1/t2g-crest-deep/ShinodaLab/annotations/csv/"
+ANNOT_DIR="/gs/hs0/tga-crest-deep/shinodaG/annotations/csv/"
 TEST_DATA="Kindred14-Test_20140428"
 BG_DATA="EVENTS-BG_20160701"
 TRAIN_DATA="EVENTS-PS-100Ex_20160701"
@@ -20,17 +19,17 @@ TEST_EVENTDB="${ANNOT_DIR}${TEST_DATA}_EventDB.csv"
 TEST_EVENTS=( `sed -e '1d' -e 's/\"//g' ${TEST_EVENTDB} | cut -d',' -f1` )
 TEST_REF="${ANNOT_DIR}${TEST_DATA}_Ref.csv"
 TEST_SVDIR=( \
-	"/work1/t2g-crest-deep/ShinodaLab/feature/LDC2011E41_TEST/avgFeature/" \
-	"/work1/t2g-crest-deep/ShinodaLab/feature/LDC2012E110/avgFeature/" \
-	"/work1/t2g-crest-deep/ShinodaLab/feature/LDC2013E56/avgFeature/" \
-	"/work1/t2g-crest-deep/ShinodaLab/feature/LDC2014E16/avgFeature/" \
+	"/gs/hs0/tga-crest-deep/shinodaG/feature/LDC2011E41_TEST/avgFeature/" \
+	"/gs/hs0/tga-crest-deep/shinodaG/feature/LDC2012E110/avgFeature/" \
+	"/gs/hs0/tga-crest-deep/shinodaG/feature/LDC2013E56/avgFeature/" \
+	"/gs/hs0/tga-crest-deep/shinodaG/feature/LDC2014E16/avgFeature/" \
 )
 BG_CLIPMD="${ANNOT_DIR}${BG_DATA}_ClipMD.csv"
 TRAIN_JUDGEMENTMD="${ANNOT_DIR}${TRAIN_DATA}_JudgementMD.csv"
 TRAIN_SVDIR=( \
-	"/work1/t2g-crest-deep/ShinodaLab/feature/LDC2012E01/avgFeature/" \
-	"/work1/t2g-crest-deep/ShinodaLab/feature/LDC2013E115/avgFeature/" \
-	"/work1/t2g-crest-deep/ShinodaLab/feature/LDC2011E41_TEST/avgFeature/" \
+	"/gs/hs0/tga-crest-deep/shinodaG/feature/LDC2012E01/avgFeature/" \
+	"/gs/hs0/tga-crest-deep/shinodaG/feature/LDC2013E115/avgFeature/" \
+	"/gs/hs0/tga-crest-deep/shinodaG/feature/LDC2011E41_TEST/avgFeature/" \
 )
 
 threads=24
@@ -39,6 +38,8 @@ function log()
 {
 	echo `date '+[%Y%m%d-%H%M%S]'` $@
 }
+
+trap 'kill -- -$$; exit 1' 1 2 3 15
 
 
 if [[ ! -d $TempOutDir ]]
@@ -52,18 +53,18 @@ then
 	rm -r $EXPID
 	mkdir ${EXPID} 
 	cd ${EXPID}
-	log 'The directory '${EXPID}' already exists.' >> log
+	log 'The directory '${EXPID}' already exists.' | tee -a log
 else
 	mkdir ${EXPID} 
 	cd ${EXPID}
 fi
 
 
-log 'Start experiment '${EXPID} >> log
+log 'Start experiment '${EXPID} | tee -a log
 
 
 cat ${TEST_CLIPMD} | cut -d ',' -f 1 | sed -e '1d' -e 's/\"//g' -e 's\HVC\\g' > $TempOutDir/test_clipid.tmp
-log 'Generating feature vectors of '`wc -l < $TempOutDir/test_clipid.tmp`' test clips...' >> log
+log 'Generating feature vectors of '`wc -l < $TempOutDir/test_clipid.tmp`' test clips...' | tee -a log
 split -l $(((`wc -l < $TempOutDir/test_clipid.tmp` + $threads - 1) / $threads)) $TempOutDir/test_clipid.tmp $TempOutDir/test_clipid.tmp.
 pids=()
 
@@ -87,7 +88,7 @@ do
 			done
 			if [[ $E -eq 1 ]]
 			then
-				echo 'HVC'${i}${SVSUFFIX}' doesn'"'"'t exist anywhere.' >> log
+				echo 'HVC'${i}${SVSUFFIX}' doesn'"'"'t exist anywhere.' | tee -a log
 				exit 1
 			fi
 			printf '\n'
@@ -106,11 +107,11 @@ do
 done
 
 cat $TempOutDir/test.sv.* > $TempOutDir/test.sv
-log 'Generated' >> log
+log 'Generated' | tee -a log
 
 
 cat ${BG_CLIPMD} | cut -d ',' -f 1 | sed -e '1d' -e 's/\"//g' -e 's\HVC\\g' > $TempOutDir/bg_clipid.tmp
-log 'Generating feature vectors of '`wc -l < $TempOutDir/bg_clipid.tmp`' background clips...' >> log
+log 'Generating feature vectors of '`wc -l < $TempOutDir/bg_clipid.tmp`' background clips...' | tee -a log
 split -l $(((`wc -l < $TempOutDir/bg_clipid.tmp` + $threads - 1) / $threads)) $TempOutDir/bg_clipid.tmp $TempOutDir/bg_clipid.tmp.
 pids=()
 
@@ -134,7 +135,7 @@ do
 			done
 			if [[ $E -eq 1 ]]
 			then
-				log 'HVC'${i}${SVSUFFIX}' doesn'"'"'t exist anywhere.' >> log
+				log 'HVC'${i}${SVSUFFIX}' doesn'"'"'t exist anywhere.' | tee -a log
 				exit 1
 			fi
 			printf '\n'
@@ -153,7 +154,7 @@ do
 done
 
 cat $TempOutDir/bg.sv.* > $TempOutDir/bg.sv
-log 'Generated' >> log
+log 'Generated' | tee -a log
 
 
 if [[ ${IS_LINEAR} -eq 0 ]]
@@ -166,7 +167,7 @@ fi
 for EVENT in ${TEST_EVENTS[@]} 
 do
 	(
-		log ${EVENT}' start training and testing SVM, detailed log in log_'${EVENT} >> log
+		log ${EVENT}' start training and testing SVM, detailed log in log_'${EVENT} | tee -a log
 		log 'Start training and testing SVM for event '${EVENT} >> log_${EVENT}
 		if [[ $EVENT == 'NULL' ]]
 		then
@@ -214,15 +215,15 @@ do
 		${LIBSVM}/svm-predict -b 1 -q $TempOutDir/test.sv $TempOutDir/${EVENT}.svm /dev/stdout | sed -e '1d' | cut -d ' ' -f 2 | paste $TempOutDir/test_clipid.tmp - | sed -e 's/^/\"/g' -e 's/\t/.'${EVENT}'\",\"/g' -e 's/$/\"/g' > $TempOutDir/${EXPID}.detection.${EVENT}.csv.tmp
 		log 'Finished' >> log_${EVENT}
 
-		log ${EVENT}' finished' >> log
+		log ${EVENT}' finished' | tee -a log
 	) &
 done
 
 wait
-log 'Finished training and testing SVM, for all of events' >> log
+log 'Finished training and testing SVM, for all of events' | tee -a log
 
 
-log 'Calculating average precisions...' >> log
+log 'Calculating average precisions...' | tee -a log
 echo '\"TrialID\",\"Score\"' > ${EXPID}.detection.csv
 cat $TempOutDir/${EXPID}.detection.*.csv.tmp | sort >> ${EXPID}.detection.csv
 
@@ -230,7 +231,8 @@ if [[ -r ${TEST_REF} ]]
 then
 	../ap.sh ${EXPID}.detection.csv ${TEST_EVENTDB} ${TEST_REF}
 fi
-log 'Calculated' >> log
+log 'Calculated' | tee -a log
+log 'mAP: '`tail -n 1 ap.csv | cut -d '"' -f 4` | tee -a log
 
 
-log 'Finished experimet '${EXPID} >> log
+log 'Finished experimet '${EXPID} | tee -a log

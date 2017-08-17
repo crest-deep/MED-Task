@@ -1,4 +1,3 @@
-module load python-extension/2.7
 
 #The directory containing the 'h5' result files to be evaluated, which are output by 'lstm_test'
 H5_SOFTMAX_DIR=/gs/hs0/tga-crest-deep/shinodaG/hands-on/128_lstmSoftmax

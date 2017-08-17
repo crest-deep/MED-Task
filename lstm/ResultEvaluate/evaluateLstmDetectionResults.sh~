@@ -18,7 +18,8 @@ do
 	python ./convertH5SoftmaxToCsv.py ${H5_SOFTMAX} ${TEST_REF} ${SOFTMAX_CSV} ${EVENT_ID_OFFSET} ${IS_H5_INCLUDE_BACKGROUND}
 	${APB} ${SOFTMAX_CSV} ${TEST_EVENTDB} ${TEST_REF}
 	id=`echo ${H5_SOFTMAX##*/} | cut -d'.' -f1 `
-	mv ap.csv ${OUTPUT_AP_DIR}/ap_${id}.csv
+	#echo ${id}
+	echo mv ap.csv ${OUTPUT_AP_DIR}/ap_${id}.csv
 done
 rm -r ${TEMP_DIR}
 
