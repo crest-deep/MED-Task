@@ -1,7 +1,7 @@
 #!/bin/sh
 #$ -cwd
 #$ -l f_node=1
-#$ -l h_rt=1:00:00
+#$ -l h_rt=0:30:00
 #$ -N feature
 
 . /etc/profile.d/modules.sh
@@ -23,7 +23,7 @@ INPUT=video
 #The frame data is located in /work1/t2g-crest-deep/ShinodaLab/frame/
 #INPUT_PATH=/work1/t2g-crest-deep/ShinodaLab/frame/LDC2014E16
 #INPUT_PATH=$1
-INPUT_PATH=/gs/hs0/tga-crest-deep/shinodaG/video/LDC2014E16
+INPUT_PATH=/gs/hs0/tga-crest-deep/shinodaG/hands-on/video
 
 #The list of urls/checksums of videos provided by TRECVID
 #The urls/checksums are located in /work1/t2g-crest-deep/ShinodaLab/frameMeta
@@ -39,7 +39,7 @@ VIDEO_LIST_TYPE=all
 #OUTPUT_FEATURE_PATH=/work1/t2g-crest-deep/ShinodaLab/feature/test/LDC2014E16
 #OUTPUT_FEATURE_PATH=$4
 #OUTPUT_FEATURE_PATH=/gs/hs0/tga-crest-deep/shinodaG/feature/LDC2014E16
-OUTPUT_FEATURE_PATH=/home/4/16M30817/CREST-MED/feature/LDC2014E16
+OUTPUT_FEATURE_PATH=/gs/hs0/tga-crest-deep/$USER/feature
 #Output directory of per-frame features
 OUTPUT_FRAME_FEATURE_PATH=${OUTPUT_FEATURE_PATH}/perFrameFeature
 #Output directory of avg feature over frames per video

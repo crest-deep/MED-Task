@@ -47,7 +47,7 @@ def videoworker(qvideo, qframe):
             sys.stdout.flush()
             qframe.put([])
             continue
-        fstep = int(reader.inputfps) * 2
+        fstep = max(int(reader.inputfps), 1) * 2
         fid = -1
         fct = 0
         fnum = int((reader.inputframenum + fid + fstep - 1) / fstep)
@@ -232,6 +232,7 @@ if __name__ == '__main__':
     elif videoListType == 'list':
         ch = open(videoList, 'r')
         for ln in ch.readlines():
+            ln = ln.rstrip()
             if ln.endswith('.mp4'):
                 qgpu.put(ln[0:-4])
             else:

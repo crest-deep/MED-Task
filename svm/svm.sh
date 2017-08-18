@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -cwd
 #$ -l f_node=1
-#$ -l h_rt=1:00:00
+#$ -l h_rt=0:30:00
 #$ -N eval
 
 EXPID='TokyoTech_MED16_KINDRED_PS_100Ex_SML_DCNN-pool5-STRICTREF_1'
@@ -15,21 +15,21 @@ BG_DATA="EVENTS-BG_20160701"
 TRAIN_DATA="EVENTS-PS-100Ex_20160701"
 
 TEST_CLIPMD="${ANNOT_DIR}${TEST_DATA}_ClipMD.csv"
-TEST_EVENTDB="${ANNOT_DIR}${TEST_DATA}_EventDB.csv"
+TEST_EVENTDB="/gs/hs0/tga-crest-deep/shinodaG/hands-on/${TEST_DATA}_EventDB.csv"
 TEST_EVENTS=( `sed -e '1d' -e 's/\"//g' ${TEST_EVENTDB} | cut -d',' -f1` )
 TEST_REF="${ANNOT_DIR}${TEST_DATA}_Ref.csv"
 TEST_SVDIR=( \
-	"/gs/hs0/tga-crest-deep/shinodaG/feature/LDC2011E41_TEST/avgFeature/" \
-	"/gs/hs0/tga-crest-deep/shinodaG/feature/LDC2012E110/avgFeature/" \
-	"/gs/hs0/tga-crest-deep/shinodaG/feature/LDC2013E56/avgFeature/" \
-	"/gs/hs0/tga-crest-deep/shinodaG/feature/LDC2014E16/avgFeature/" \
+	"/gs/hs0/tga-crest-deep/shinodaG/hands-on/feature/LDC2011E41_TEST/avgFeature/pool5/" \
+	"/gs/hs0/tga-crest-deep/shinodaG/hands-on/feature/LDC2012E110/avgFeature/pool5/" \
+	"/gs/hs0/tga-crest-deep/shinodaG/hands-on/feature/LDC2013E56/avgFeature/pool5/" \
+	"/gs/hs0/tga-crest-deep/shinodaG/hands-on/feature/LDC2014E16/avgFeature/pool5/" \
 )
 BG_CLIPMD="${ANNOT_DIR}${BG_DATA}_ClipMD.csv"
 TRAIN_JUDGEMENTMD="${ANNOT_DIR}${TRAIN_DATA}_JudgementMD.csv"
 TRAIN_SVDIR=( \
-	"/gs/hs0/tga-crest-deep/shinodaG/feature/LDC2012E01/avgFeature/" \
-	"/gs/hs0/tga-crest-deep/shinodaG/feature/LDC2013E115/avgFeature/" \
-	"/gs/hs0/tga-crest-deep/shinodaG/feature/LDC2011E41_TEST/avgFeature/" \
+	"/gs/hs0/tga-crest-deep/$USER/feature/avgFeature/pool5/" \
+	"/gs/hs0/tga-crest-deep/shinodaG/hands-on/feature/LDC2013E115/avgFeature/pool5/" \
+	"/gs/hs0/tga-crest-deep/shinodaG/hands-on/feature/LDC2011E41_TEST/avgFeature/pool5/" \
 )
 
 threads=24
