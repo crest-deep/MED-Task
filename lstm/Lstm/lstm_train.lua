@@ -27,7 +27,7 @@ local batchSize = tonumber(arg[9])
 local lr = tonumber(arg[10])
 local lrd = tonumber(arg[11])
 local wd = tonumber(arg[12])
-local momentum = tonumber(arg[13])
+local gradientClip = tonumber(arg[13])
 
 local gpuId = tonumber(arg[14])
 
@@ -49,16 +49,14 @@ logSoftMaxLayer = logSoftMaxLayer:cuda()
 
 -- Criterion
 local weight = torch.Tensor(outputDim):fill(1)
--- 'background' class is supposed to be the last class and be given a small weight
---weight[-1] = 0.02
 local criterion = nn.SequencerCriterion(nn.MaskZeroCriterion(nn.ClassNLLCriterion(weight), 1))
 criterion = criterion:cuda()
 
-local sgdParams = {
+local optimParams = {
 	learningRate = lr,
 	learningRateDecay = lrd,
 	weightDecay = wd,
-	momentum = momentum
+	--momentum = momentum
 }
 print('Model created')
 
@@ -91,11 +89,14 @@ for countEpoch = 1, epochNum do
 		model:zeroGradParameters()
 		model:backward(miniBatchData, gradAct)
 		
+		-- gradient clipping
+		grads:clamp(-gradientClip, gradientClip)
+
 		-- update params
 		local function feval(params)
 			return loss, grads
 		end
-		optim.sgd(feval, params, sgdParams)
+		optim.adam(feval, params, optimParams)
 		
 		print("Loss: " .. loss .. " " .. "[Epoch: " .. countEpoch .. "]" .. "[Batch: " .. countBatch .. "]")
 	end

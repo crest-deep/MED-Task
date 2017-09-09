@@ -59,19 +59,6 @@ void BasicOperations::getPathOfFileInDir(string dirPath,
 
 }
 
-void BasicOperations::eliminateDuplicates(vector<int>& vec) {
-	set<int> mySet;
-	for(int countVec = 0; countVec < vec.size(); countVec++) {
-		mySet.insert(vec[countVec]);
-	}
-
-	vec.clear();
-	set<int>::iterator mySetIt = mySet.begin();
-	for(; mySetIt != mySet.end(); mySetIt++) {
-		vec.push_back(*mySetIt);
-	}
-}
-
 string BasicOperations::convertNumToStrFloat(float num) {
 	ostringstream convert;
 	convert << num;
@@ -85,56 +72,6 @@ string BasicOperations::convertNumToStrLong(unsigned long long num) {
 	convert << num;
 
 	return convert.str();
-}
-
-void BasicOperations::splitDir(string srcDir, string desDir, int splitNum) {
-
-	vector<path> srcFilePaths;
-	BasicOperations::getPathOfFileInDir(srcDir, srcFilePaths);
-	int interval = 0;
-	if(srcFilePaths.size() % splitNum == 0)
-		interval = srcFilePaths.size() / splitNum;
-	else
-		interval = srcFilePaths.size() / splitNum + 1;
-
-	string newDirPath = "";
-	for(int count = 0; count < srcFilePaths.size(); count++) {
-		if(count % interval == 0) {
-			newDirPath = desDir + BasicOperations::convertNumToStr(count / interval) + "/";
-			create_directory(newDirPath);
-		}
-
-		copy_file(srcFilePaths[count], newDirPath + srcFilePaths[count].filename().string());
-		cout << "Completed: " << srcFilePaths[count].filename().string() << endl;
-	}
-
-}
-
-void BasicOperations::makeCombination(const set<int>& nonZeroSet,
-		set<pair<int, int> >& combination) {
-
-	set<int>::const_iterator nonZeroSetIt1 = nonZeroSet.begin();
-	set<int>::const_iterator nonZeroSetIt2 = nonZeroSet.begin();
-
-	for(; nonZeroSetIt1 != nonZeroSet.end(); nonZeroSetIt1++)
-		for(; nonZeroSetIt2 != nonZeroSet.end(); nonZeroSetIt2++) {
-			if(*nonZeroSetIt1 == *nonZeroSetIt2)
-				continue;
-			int big;
-			int small;
-			if(*nonZeroSetIt1 > *nonZeroSetIt2) {
-				big = *nonZeroSetIt1;
-				small = *nonZeroSetIt2;
-			}
-			else {
-				big = *nonZeroSetIt2;
-				small = *nonZeroSetIt1;
-			}
-
-			pair<int, int> newPair(small, big);
-			combination.insert(newPair);
-		}
-
 }
 
 void BasicOperations::convertStrVecToIntVec(const vector<string>& strVec,
@@ -179,19 +116,10 @@ void BasicOperations::filterFileSuffix(vector<path>& paths, string suffix) {
 
 }
 
-string BasicOperations::queryNameFromPyrToResultList(string queryName) {
-
-	path queryNamePathPyr(queryName);
-	string queryNameResult = queryNamePathPyr.stem().stem().stem().string() + ".softWordIdx";
-
-	return queryNameResult;
-
-}
-
 void BasicOperations::readWholeFileAsString(string filePath,
 		string& str) {
 
-	ifstream inFile(filePath.c_str());
+	std::ifstream inFile(filePath.c_str());
 	stringstream strStream;
 	strStream << inFile.rdbuf();
 

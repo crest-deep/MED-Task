@@ -105,7 +105,7 @@ void AnnotationProcessor::parseTrainBg(string trainBgFilePath,
 		const map<string, string>& videoIdToPathMap,
 		map<string, int>& pathToLabel) {
 
-	ifstream trainBgFile(trainBgFilePath.c_str());
+	std::ifstream trainBgFile(trainBgFilePath.c_str());
 	string strLine;
 	getline(trainBgFile, strLine);
 	while(getline(trainBgFile, strLine)) {
@@ -170,7 +170,7 @@ void AnnotationProcessor::parseTestRef(string testRefFilePath,
 
 	//map<videoId, labelSet>
 	map<string, set<int> > videoIdToLabels;
-	ifstream testRefFile(testRefFilePath.c_str());
+	std::ifstream testRefFile(testRefFilePath.c_str());
 	string strLine;
 	getline(testRefFile, strLine);
 	while(getline(testRefFile, strLine)) {
@@ -244,7 +244,7 @@ void AnnotationProcessor::outputTxtAnnotations(
 	else if(order == FILE_TEMPLATE_ORDER)
 		mapToVecFileTemplate(pathToLabel, pathToLabelVec, sortTemplateRefFile, videoIdToPath);
 
-	ofstream txtFile(txtPath.c_str());
+	std::ofstream txtFile(txtPath.c_str());
 	for(int count = 0; count < pathToLabelVec.size(); count++) {
 		txtFile << pathToLabelVec[count].first << " " << pathToLabelVec[count].second << endl;
 	}
@@ -261,7 +261,7 @@ void AnnotationProcessor::outputTestRef(
 	vector<pair<string, int> > trialEventIdVec;
 	convertToTrialEventId(pathToLabelVec, trialEventIdVec);
 
-	ofstream newRefFile(newRefPath.c_str());
+	std::ofstream newRefFile(newRefPath.c_str());
 	newRefFile << "\"TrialID\",\"Targ\"" << endl;
 	for(int countTrialVec = 0; countTrialVec < trialEventIdVec.size(); countTrialVec++) {
 		string trialVideoId = trialEventIdVec[countTrialVec].first;
@@ -335,7 +335,7 @@ void AnnotationProcessor::mapToVecFileTemplate(
 	assert(templateRefFilePath != "");
 
 	set<string> videoIdSet;
-	ifstream refFile(templateRefFilePath.c_str());
+	std::ifstream refFile(templateRefFilePath.c_str());
 	string strLine = "";
 	getline(refFile, strLine);
 	while(getline(refFile, strLine)) {

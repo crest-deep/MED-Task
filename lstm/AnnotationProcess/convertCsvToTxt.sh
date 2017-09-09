@@ -1,4 +1,3 @@
-source /gs/hs0/tga-crest-deep/shinodaG/library/env/boost.sh
 
 #Background Video CSV for Training. The videos are used as negatives for training.
 TRAIN_BG_FILE_PATH=/gs/hs0/tga-crest-deep/shinodaG/annotations/csv/EVENTS-BG_20160701_ClipMD.csv
@@ -25,7 +24,7 @@ EVENT_ID_OFFSET=20
 EVENT_NUM=20
 
 #If 'IS_OMMIT_BACKGROUND' = 1, all the background videos will be filtered out for both training and test sets
-IS_OMMIT_BACKGROUND=1
+IS_OMMIT_BACKGROUND=0
 
 #If 'NEW_TEST_REF_FILE' is not empty, i.e. \"\", a new test ref file will be created, corresponding to the contents in 'TEST_TXT_PATH'
 #If you set 'IS_OMMIT_BACKGROUND' = 1, please set this parameter so that you can correctly evaluate results in the following stages

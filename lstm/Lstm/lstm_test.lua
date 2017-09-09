@@ -43,6 +43,7 @@ local testNum = #dataPathsAndLabels
 print("#TestNum: ", testNum)
 
 local batchNum = math.ceil(testNum / batchSize)
+print('Total BatchNum: ', batchNum)
 local finalResAvg = torch.Tensor()
 finalResAvg = finalResAvg:cuda()
 for countBatch = 1, batchNum do
@@ -58,7 +59,8 @@ for countBatch = 1, batchNum do
 	
 	-- take average of softmax
 	local miniSoftMaxAvg = Scorer.takeAvgStep(miniSoftMax, miniBatchLen)
-	finalResAvg = finalResAvg:cat(miniSoftMaxAvg, 1)	
+	finalResAvg = finalResAvg:cat(miniSoftMaxAvg, 1)
+	print('Finish Batch: ', countBatch)	
 end
 
 finalResAvg = finalResAvg:float()

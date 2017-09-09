@@ -1,11 +1,11 @@
 #!/bin/bash
 
-MODEL_DIR=/gs/hs0/tga-crest-deep/shinodaG/hands-on/model/$1
+MODEL_DIR=/gs/hs0/tga-crest-deep/shinodaG/hands-on/model/256
 
-OUTPUT_DIR=/gs/hs0/tga-crest-deep/shinodaG/hands-on/$1_lstmSoftmax
+OUTPUT_DIR=/gs/hs0/tga-crest-deep/shinodaG/hands-on/softmax/256_lstmSoftmax
 mkdir ${OUTPUT_DIR}
 
-GPU_ID=$2
+GPU_ID=1
 
 for MODEL_PATH in ${MODEL_DIR}/*
 do

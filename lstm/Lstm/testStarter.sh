@@ -9,7 +9,7 @@ DATA_SET_NAME=feature
 #MODEL_PATH=/work1/t2g-crest-deep/ShinodaLab/models/torchModels/256/model_100ex_batch5_unit256_epoch45
 MODEL_PATH=$1
 #Batch size
-BATCH_SIZE=128
+BATCH_SIZE=256
 
 #Detection output path
 OUTPUT_PATH=$2
