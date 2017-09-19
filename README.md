@@ -10,6 +10,8 @@ For the detailed information of accessing the data, please refer to `Part I: Dat
 
 If you have any questions or requirements, please do not hesitate to contact us under `mengxi at ks.cs.titech.ac.jp`, `ryamamot at ks.cs.titech.ac.jp`.
 
+You can find more helpful information of running the baseline from the tutorial slides in [_slidesForMEDBaselineTutorial_](./slidesForMEDBaselineTutorial)
+
 -------------------------------------- 
 CONTENT:
 -------------------------------------- 
@@ -81,7 +83,7 @@ For the detailed description of each event, please refer to ***.
 
 We place all the data needed for each module's input in Tsubame under the directory: 
 ```
-	/work1/t2g-crest-deep/ShinodaLab/MEDData 
+	/gs/hs0/tga-crest-deep/shinodaG
 ```
 
 The whole data is split into six parts: 
@@ -108,36 +110,37 @@ The parts that are involved in testing are:
 	LDC2014E16
 ```
 
-The detailed split information for training and testing is contained in the `csv`/`txt` annotation files. They are located in: 
+The detailed split information for training and testing is contained in the `csv` annotation files. They are located in: 
 ```
-	/work1/t2g-crest-deep/ShinodaLab/annotations
+	/gs/hs0/tga-crest-deep/shinodaG/annotations/csv
 ```
-For the detailed explanations of the annotations in `csv` and `txt`, please refer to the `Evaluation` part.
+For the detailed explanations of the annotations in `csv`, please refer to the `Evaluation` part.
 
 -	Video Data (Input for Frame Extraction)
 
 	The video data is located in
 ```
-	/work1/t2g-crest-deep/ShinodaLab/video
+	/gs/hs0/tga-crest-deep/shinodaG/video
 ```
 	They are compressed with H.264 and stored in .mp4 format.
 -	Frame Data (Input for Deep Feature Extraction)
 
 	The frame data is located in
 ```
-	/work1/t2g-crest-deep/ShinodaLab/frame
+	/gs/hs0/tga-crest-deep/shinodaG/frame
 ```
-	The frame meta is located in
+<!--	The frame meta is located in
 ```
 	/work1/t2g-crest-deep/ShinodaLab/frameMeta
 ```
 	The frame meta includes checksum and urls of the dataset videos. It is needed by the program in Deep Feature Extraction.
+-->
 
 -	Feature Data (Input for SVM and LSTM)
 
 	The feature data is located in
 ```
-	/work1/t2g-crest-deep/ShinodaLab/feature
+	/gs/hs0/tga-crest-deep/shinodaG/feature
 ```
 	We provide two kinds of features, i.e. `avgFeature` and `perFrameFeature`. 
 
@@ -145,24 +148,20 @@ For the detailed explanations of the annotations in `csv` and `txt`, please refe
 
 	`perFrameFeature` contains multiple feature vectors for one video. Each feature vector corresponds to one frame in the video. `perFrameFeature` is stored under the h5 format, and every row in the h5 file is one vector corresponding to one frame. The order of the vectors follows the order of the time, i.e. the first row corresponds to the first frame, the second row corresponds to the second frame...
 
--	Model Data(The trained models)
+-	Model Data
 
-	The trained neural networks are located in
+<!--	The trained neural networks are located in
 ```
 	/work1/t2g-crest-deep/ShinodaLab/models
 ```
+-->
 	We place the caffe models under
 ```
-	/work1/t2g-crest-deep/ShinodaLab/models/caffeModels
+	/gs/hs0/tga-crest-deep/shinodaG/models/caffeModels
 ```
-	and the torch models under
-```
-	/work1/t2g-crest-deep/ShinodaLab/models/torchModels
-```
-
 	The Deep Feature Extraction Module requires `googLeNet` of caffe, which is located in
 ```
-	/work1/t2g-crest-deep/ShinodaLab/models/caffeModels/imageShuffleNet
+	/gs/hs0/tga-crest-deep/shinodaG/models/caffeModels/imageShuffleNet
 ```
 
 -------------------------------------- 
@@ -338,12 +337,9 @@ This module is divided into three parts: `AnnotationProcess`, `Lstm` and `Result
 
 `AnnotationProcess` processes the `csv` annotations and convert them into `txt` annotations, which are used as a part of input in `Lstm`. 
 
-`AnnotationProcess` is written in C/C++ and depends on:
-```
--	boost-1.58.0
-``` 
+`AnnotationProcess` is written in C/C++.
 
-To compile the C/C++ code of `AnnotationProcess`, simply change the variables in `compile.sh` to choose an appropriate C++ compiler and run:
+To compile the C/C++ code of `AnnotationProcess`, simply run:
 ```
 	./compile.sh
 ```
@@ -355,7 +351,12 @@ Editing the variables in the script `convertCsvToTxt.sh` and running:
 ```
 will give you the `txt` annotations in the place that you specify in the script.
 
+The output variables include:
+TRAIN_TXT_PATH, TEST_TXT_PATH: the `txt` annotation files of training and testing
+
 Each row in the `txt` annotation file corresponds to a video clip. It includes the path of the feature of the video and a label index ranging from `[1, 21]`. `[1, 20]` corresponds to the eventID from `E21` to `E40`, and `21` corresponds to the `background` label indicating not any target events are included.
+
+NEW_TEST_REF_FILE: the test 'csv' annotation file, which will be used for evaluation in `ResultEvaluate`. The format is the same as the test `csv` file of input.
 
 `Lstm` is written in Lua and depends on:
 ```
@@ -363,61 +364,69 @@ Each row in the `txt` annotation file corresponds to a video clip. It includes t
 ```
 We have installed the `Torch` framework under:
 ```
-	/work1/t2g-crest-deep/ShinodaLab/library/torch/distro
+	/gs/hs0/tga-crest-deep/shinodaG/library/torch/torch-master_17.8.8
 ```
 If you are in Tsubame, you can easily import the framework into your environment by executing:
 ```
-	/work1/t2g-crest-deep/ShinodaLab/library/env/torch.sh
+	source /gs/hs0/tga-crest-deep/shinodaG/library/env/torch.sh
 ```
 
-To train your own LSTM model, simply edit the variables in `trainStarter.sh` and run:
+To train your own LSTM model, simply edit the variables in `trainStarter.sh`:
+TRAIN_ANNOTATION_PATH (input): the training `txt` annotation file you create in `AnnotationProcess`
+MODEL_SAVING_DIR (output): the directory you would like to save your models to.
+
+To train your own LSTM model, run:
 ```
 	./trainStarter.sh
 ```
-You can find your trained models in the place that you specify in the script `trainStarter.sh`, after the trainining process completes.
 
-To use your trained LSTM model for testing, edit the variables in `testStarter.sh` and run:
+If you are in Tsubame3, you can instead submit a job, by first editing the submission script file (e.g. modifying -o, -e options) and run:
 ```
-	./testStarter.sh
+	qsub -g YOUR_GROUP_NAME submitLstmTrain.sh
 ```
-It will give you the detection results stored under `h5` form in the place that you specify in the script.
+The training is supposed to be completed within an hour.
+
+To use your trained LSTM model for testing, edit the variables in `testStarter.sh`:
+TEST_ANNOTATION_PATH (input): the test `txt` annotation file you create in `AnnotationProcess`
+
+and edit the variables in `testStarterBatch`:
+MODEL_DIR (input): the directory you put your trained models.
+OUTPUT_DIR (output): the directory you want to store the softmax probabilities of test data in.
+
+and then run
+```
+	./testStarterBatch.sh
+```
+If you are in Tsubame3, you can instead submit a job, by first editing the submission script file (e.g. modifying -o, -e options) and run:
+```
+	qsub -g YOUR_GROUP_NAME submitLstmTest.sh
+```
+The testing is supposed to be completed within 20 mins.
 
 `ResultEvaluate` is written in Python and bash. It depends on:
 ```
 - Python 2.7
 ```
 
-To get the final AP (Average Precision) for the detection result, edit the variables in the script `evaluateStarter.sh` and run:
+To get the final AP (Average Precision) for the detection result, edit the variables in the script `evaluateStarter.sh`:
+H5_SOFTMAX_DIR (input): The directory containing the 'h5' result files to be evaluated, which are output by 'lstm_test'
+TEST_REF (input): the test `csv` file you create in `AnnotationProcess`
+
+OUTPUT_AP_DIR (output): The directory to store mAP (mean Average Precision) scores
+
+and then run:
 ```
 	./evaluateStarter.sh
 ```
-The AP performance will be written to the place that you specify in the script.
+The AP performance will be written to the place that you specify (OUTPUT_AP_DIR) in the script.
 
-Using the following parameters for training the Lstm, you are expected to get mAP `0.42` on the test set.
+Using the following parameters for training the Lstm, you are expected to get mAP around `0.43` on the test set.
 ```
-	EPOCH_NUM = 75
-	BATCH_SIZE = 5
+	EPOCH_NUM=40
+	BATCH_SIZE=128
 	HIDDEN_UNIT=256
-	LEARNING_RATE = 0.005
-	LEARNING_RATE_DECAY = 1E-4
-	WEIGHT_DECAY = 0.005
-	MOMENTUM = 0.9
+	LEARNING_RATE=0.001
+	LEARNING_RATE_DECAY=1E-4
+	WEIGHT_DECAY=0.01
+	GRADIENT_CLIP=5
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
