@@ -352,6 +352,7 @@ Editing the variables in the script `convertCsvToTxt.sh` and running:
 will give you the `txt` annotations in the place that you specify in the script.
 
 The output variables include:
+
 TRAIN_TXT_PATH, TEST_TXT_PATH: the `txt` annotation files of training and testing
 
 Each row in the `txt` annotation file corresponds to a video clip. It includes the path of the feature of the video and a label index ranging from `[1, 21]`. `[1, 20]` corresponds to the eventID from `E21` to `E40`, and `21` corresponds to the `background` label indicating not any target events are included.
@@ -372,7 +373,9 @@ If you are in Tsubame, you can easily import the framework into your environment
 ```
 
 To train your own LSTM model, simply edit the variables in `trainStarter.sh`:
+
 TRAIN_ANNOTATION_PATH (input): the training `txt` annotation file you create in `AnnotationProcess`
+
 MODEL_SAVING_DIR (output): the directory you would like to save your models to.
 
 To train your own LSTM model, run:
@@ -387,10 +390,13 @@ If you are in Tsubame3, you can instead submit a job, by first editing the submi
 The training is supposed to be completed within an hour.
 
 To use your trained LSTM model for testing, edit the variables in `testStarter.sh`:
+
 TEST_ANNOTATION_PATH (input): the test `txt` annotation file you create in `AnnotationProcess`
 
 and edit the variables in `testStarterBatch`:
+
 MODEL_DIR (input): the directory you put your trained models.
+
 OUTPUT_DIR (output): the directory you want to store the softmax probabilities of test data in.
 
 and then run
@@ -409,7 +415,9 @@ The testing is supposed to be completed within 20 mins.
 ```
 
 To get the final AP (Average Precision) for the detection result, edit the variables in the script `evaluateStarter.sh`:
+
 H5_SOFTMAX_DIR (input): The directory containing the 'h5' result files to be evaluated, which are output by 'lstm_test'
+
 TEST_REF (input): the test `csv` file you create in `AnnotationProcess`
 
 OUTPUT_AP_DIR (output): The directory to store mAP (mean Average Precision) scores
